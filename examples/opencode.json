@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "auth-nhi": {
+      "command": "npx",
+      "args": ["-y", "@auth-nhi/mcp-harness", "serve"]
+    }
+  }
+}

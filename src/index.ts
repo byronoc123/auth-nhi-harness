@@ -1,0 +1,12 @@
+export { StateMachine, StepUpError, defaultTicketsPath } from "./stepup/state-machine.js";
+export type { StepUpTicket, StepUpChallenge, AttestationRecord, ChallengeMethod } from "./stepup/state-machine.js";
+export { Vault } from "./vault/vault.js";
+export type { VaultIdentity } from "./vault/vault.js";
+export { generateTotp, verifyTotp } from "./auth/totp.js";
+export { mintElevatedToken, verifyElevatedToken } from "./auth/token.js";
+export { loadGuardrailConfig, assertTargetAllowed, assertReplayPermitted, GuardrailError, LAWFUL_USE_NOTICE } from "./policy/guardrails.js";
+export { buildElicitation } from "./elicitation/hitl.js";
+export { TOOL_DEFS, handleExecAuthenticatedAction, handleResumeStepupSession, handleVaultStatus, handleVaultRefresh } from "./tools/index.js";
+export type { HarnessContext } from "./tools/index.js";
+export { startHarness } from "./server.js";
+export { main } from "./cli.js";

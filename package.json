@@ -1,0 +1,46 @@
+{
+  "name": "@auth-nhi/mcp-harness",
+  "version": "0.1.0",
+  "description": "Step-up auth & governance for agentic processes. MCP harness that turns 2FA/step-up boundaries into human-verified, attested state transitions.",
+  "type": "module",
+  "license": "Apache-2.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "auth-nhi": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "lint": "tsc -p tsconfig.json --noEmit"
+  },
+  "keywords": [
+    "mcp",
+    "auth",
+    "step-up",
+    "nhi",
+    "agents",
+    "oauth",
+    "2fa",
+    "human-in-the-loop"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "otpauth": "^9.0.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}

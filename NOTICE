@@ -1,0 +1,25 @@
+auth-nhi MCP Harness
+Copyright 2026 auth-nhi contributors
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+these files except in compliance with the License. You may obtain a copy of the
+License at http://www.apache.org/licenses/LICENSE-2.0
+
+LAWFUL USE NOTICE
+-----------------
+This software is designed exclusively for systems the operator owns, operates,
+or is contractually authorized to automate. It implements standard identity
+protocols (OAuth 2.0/OIDC step-up, RFC 9126, RFC 9396, RFC 8693) and
+human-in-the-loop approval state machines.
+
+It does NOT authorize, endorse, or support:
+  - Circumventing access controls or security measures of any system
+  - Interception of another person's authentication factors (SMS, email, OTP)
+  - Automated credential stuffing, scraping in violation of terms of service,
+    or session replay against systems without explicit authorization
+
+Legacy session-replay affordances are disabled by default and gated behind an
+explicit, auditable configuration flag. Enabling them against third-party
+systems without contractual authorization may violate terms of service and
+computer-misuse law (e.g., 18 U.S.C. §1030; EU Directive 2013/40). Operators
+assume all legal responsibility for their configuration.
