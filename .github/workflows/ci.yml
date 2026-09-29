@@ -21,12 +21,4 @@ jobs:
       - run: npm run build
       - run: npm test
       - name: Guardrail smoke test (replay blocked by default)
-        run: |
-          node -e "
-          import('./dist/policy/guardrails.js').then(g => {
-            const cfg = g.loadGuardrailConfig({ AUTH_NHI_ALLOWLIST: 'example.com' });
-            try { g.assertTargetAllowed('https://example.com/x', cfg); console.log('allowlist ok'); }
-            catch (e) { console.error('FAIL', e.code); process.exit(1); }
-            try { g.assertReplayPermitted(cfg); console.error('FAIL: replay should be blocked'); process.exit(1); }
-            console.log('replay-gate ok');
-          });"
+        run: node scripts/smoke-guardrail.mjs
