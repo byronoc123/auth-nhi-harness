@@ -7,4 +7,4 @@ coverage/
 .auth-nhi/
 *.vault.enc
 tickets.json
-.DS_Store
+.DS_Store.vercel/

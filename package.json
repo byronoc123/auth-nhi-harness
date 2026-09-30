@@ -1,6 +1,6 @@
 {
   "name": "@secondsign/mcp-harness",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "SecondSign — step-up auth & governance for agentic processes. MCP harness that turns 2FA/step-up boundaries into human-verified, attested state transitions.",
   "homepage": "https://secondsign.app",
   "type": "module",

@@ -8,6 +8,7 @@ import {
 import { z } from "zod";
 import { Vault } from "./vault/vault.js";
 import { StateMachine, defaultTicketsPath } from "./stepup/state-machine.js";
+import { createSingleUseStore } from "./auth/token.js";
 import { GuardrailError } from "./policy/guardrails.js";
 import { StepUpError } from "./stepup/state-machine.js";
 import {
@@ -36,7 +37,7 @@ export async function startHarness(): Promise<void> {
   const vault = new Vault(Vault.defaultPath(), machineKey);
   vault.load();
   const state = new StateMachine(defaultTicketsPath());
-  const ctx: HarnessContext = { state, vault, machineKey };
+  const ctx: HarnessContext = { state, vault, machineKey, singleUseStore: createSingleUseStore() };
 
   const server = new Server(
     { name: "secondsign-mcp-harness", version: "0.1.0" },

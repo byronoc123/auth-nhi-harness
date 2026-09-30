@@ -36,6 +36,7 @@ export interface AttestationRecord {
 }
 
 export interface StepUpTicket {
+  contextHash?: string;
   id: string;
   targetHost: string;
   authLevel: AuthLevel;
@@ -87,7 +88,7 @@ export class StateMachine {
     this.load();
   }
 
-  create(targetHost: string, authLevel: AuthLevel): StepUpTicket {
+  create(targetHost: string, authLevel: AuthLevel, contextHash?: string): StepUpTicket {
     const now = Date.now();
     const ticket: StepUpTicket = {
       id: `tkt_${randomBytes(5).toString("hex")}`,
@@ -96,6 +97,7 @@ export class StateMachine {
       status: "RUNNING",
       createdAt: now,
       updatedAt: now,
+      contextHash,
       history: [{ at: now, event: "CREATED" }],
     };
     this.tickets.set(ticket.id, ticket);

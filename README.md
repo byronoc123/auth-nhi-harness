@@ -21,21 +21,32 @@ The agent never "handles" 2FA. When a privileged action hits a step-up
 boundary, the harness **pauses execution state and issues a challenge ticket**:
 
 ```
-Agent ── exec_authenticated_action ──> secondsign harness ──> Target system
+Agent ── exec_authenticated_action ──> SecondSign harness ──> Target system
                                           │
                               2FA/step-up boundary detected
                                           │
                           1. Freeze state → mint ticket (tkt_...)
-                          2. Return ELICITATION_REQUIRED to the agent
+                          2. Return ELICITATION_REQUIRED + context hash (#a8f19b12)
                                           │
         Human approves out-of-band:       │
-        - `npx secondsign approve tkt_...`  │
+        - `npx secondsign approve tkt_..` │
         - or supplies TOTP code           │
         - or completes passkey push (v0.2)│
                                           │
-        3. resume_stepup_session → short-lived elevated token (5 min TTL)
-        4. Action completes with attestation: who approved, when, how
+        3. resume_stepup_session → ephemeral single-use action grant (60s)
+        4. Session steps DOWN to read-only (900s) after the action
+        5. Attestation: who approved, what, when — bound to the action context
 ```
+
+### v0.2 primitives (battlecard features, in real code)
+
+| Primitive | What it gives you |
+|---|---|
+| **Context binding (Agent Lock)** | Tokens are HMAC-bound to the exact action context (`bind`); replay against a different action → `BIND_MISMATCH` |
+| **Ephemeral single-use grants** | Action grants live 60s, consumed exactly once (`ALREADY_USED` on replay) |
+| **Step-down scoping** | After the privileged action, the agent drops to read-only session scope automatically |
+| **Agent Attestation Hash** | Elicitation and audit records carry `#a8f19b12` — the human approves *this exact action*, provably |
+| **Signed assertion headers** | `x-secondsign-agent / -acr / -scopes / -bind / -attestation` helpers for target calls |
 
 Design principles:
 

@@ -1,7 +1,16 @@
 # Step-Up Protocol & State Machine
 
 The harness treats 2FA/step-up as a **protocol state transition**, never a
-scripting problem. This document is the normative spec for v0.1.
+scripting problem. This document is the normative spec for v0.2.
+
+## v0.2 primitives
+
+| Primitive | Mechanism | Guarantee |
+|---|---|---|
+| **Context binding (Agent Lock)** | `context_hash` = canonical-JSON HMAC over `{target, action, level}`; tokens carry `bind` and are rejected (`BIND_MISMATCH`) unless verified against the same hash | A token mints for exactly one action context; replaying it elsewhere fails |
+| **Ephemeral single-use grants** | Action token: TTL 60s, `jti` + `single-use` scope, consumption tracked per store | One token, one action, one use; replay → `ALREADY_USED` |
+| **Step-down scoping** | On completion, agent receives a second `session_token` (900s, `read session` scopes only) | Write capability never outlives the action |
+| **Attestation surface** | Elicitation + attestation carry `context_hash` (`#a8f19b12`) | Humans and auditors see exactly which action was approved |
 
 ## Ticket states
 
@@ -51,17 +60,37 @@ IdP bridge and headful handoff.
   "ticket_id": "tkt_8f92a40b12",
   "elevated_token": "<b64url payload>.<hmac-sha256>",
   "token": {
+    "jti": "9f1c…",
     "acr": "mfa",
-    "ttl_seconds": 300,
+    "scopes": ["action:mfa_required", "target:github.com", "single-use"],
+    "grant": "ephemeral",
+    "single_use": true,
+    "ttl_seconds": 60,
     "aud": "github.com",
-    "expires_at": 1735689900
+    "expires_at": 1735689900,
+    "bound_context": "#a8f19b12"
+  },
+  "session_token": "<read-only step-down grant, 900s>",
+  "session": {
+    "scopes": ["read", "session"],
+    "ttl_seconds": 900,
+    "note": "step-down: read-only session after the privileged action completes"
+  },
+  "assertion_headers": {
+    "x-secondsign-agent": "tkt_8f92a40b12",
+    "x-secondsign-acr": "mfa",
+    "x-secondsign-scopes": "action:mfa_required target:github.com single-use",
+    "x-secondsign-grant": "ephemeral",
+    "x-secondsign-bind": "#a8f19b12",
+    "x-secondsign-attestation": "#a8f19b12"
   },
   "attestation": {
     "ticket_id": "tkt_8f92a40b12",
     "approved_by": "human:cli",
     "method": "MANUAL",
     "approved_at": 1735689600
-  }
+  },
+  "context_hash": "#a8f19b12"
 }
 ```
 
