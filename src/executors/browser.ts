@@ -71,6 +71,17 @@ function fillConfig(cfg: Record_ = {}): BrowserExecConfig {
   };
 }
 
+// Optional evidence recording (audit/demo): when SECONDSIGN_RECORD_VIDEO_DIR
+// is set, every browser context captures a video of the flow. Off by default.
+function contextOptions(extra: Record<string, unknown> = {}): Record<string, unknown> {
+  const dir = process.env.SECONDSIGN_RECORD_VIDEO_DIR;
+  if (!dir) return extra;
+  return {
+    ...extra,
+    recordVideo: { dir, size: { width: 1280, height: 720 } },
+  };
+}
+
 export async function browserStart(
   ticketId: string,
   targetUrl: string,
@@ -80,10 +91,12 @@ export async function browserStart(
 ): Promise<BrowserStartResult> {
   const cfg = fillConfig(cfgInput);
   const b = await getBrowser();
-  const context = await b.newContext({
-    locale: "en-US",
-    ...(opts.restoreStorageState ? { storageState: opts.restoreStorageState } : {}),
-  });
+  const context = await b.newContext(
+    contextOptions({
+      locale: "en-US",
+      ...(opts.restoreStorageState ? { storageState: opts.restoreStorageState } : {}),
+    }),
+  );
   await context.addInitScript(WEBAuthnDetectorInitScript);
   const page = await context.newPage();
   const sent: ("push" | "magic_link")[] = [];
@@ -182,10 +195,12 @@ export async function browserHandoff(
   opts.onWallEvent?.("handoff_opened", { onWall: true, kind: session.wallKind, detail: "headful handoff" });
   const storageState = await context.storageState().catch(() => undefined);
   const headful = await getBrowser({ headless: opts.headless ?? false });
-  const hContext = await headful.newContext({
-    locale: "en-US",
-    ...(storageState ? { storageState } : {}),
-  });
+  const hContext = await headful.newContext(
+    contextOptions({
+      locale: "en-US",
+      ...(storageState ? { storageState } : {}),
+    }),
+  );
   await hContext.addInitScript(WEBAuthnDetectorInitScript);
   const hPage = await hContext.newPage();
   try {
@@ -254,9 +269,18 @@ export async function browserFinishAction(
     }
     return result;
   } finally {
+    // SECONDSIGN_HOLD_MS keeps the final page on screen (demo/audit review)
+    const holdMs = Number(process.env.SECONDSIGN_HOLD_MS ?? 0);
+    if (holdMs > 0) await page.waitForTimeout(holdMs).catch(() => {});
     await context.close().catch(() => {});
     live.delete(ticketId);
   }
+}
+
+// Handle to the live page of a ticket's browser session (evidence overlays,
+// demos). Undefined once the session closed.
+export function browserLivePage(ticketId: string): any {
+  return live.get(ticketId)?.page;
 }
 
 export async function browserComplete(
@@ -302,6 +326,9 @@ export async function browserComplete(
     }
     return result;
   } finally {
+    // SECONDSIGN_HOLD_MS keeps the final page on screen (demo/audit review)
+    const holdMs = Number(process.env.SECONDSIGN_HOLD_MS ?? 0);
+    if (holdMs > 0) await page.waitForTimeout(holdMs).catch(() => {});
     await context.close().catch(() => {});
     live.delete(ticketId);
   }

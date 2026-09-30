@@ -8,3 +8,4 @@ coverage/
 *.vault.enc
 tickets.json
 .DS_Store.vercel/
+demo/recordings/

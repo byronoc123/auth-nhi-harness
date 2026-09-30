@@ -39,6 +39,20 @@ The app prints its simulated out-of-band deliveries (approval URL / magic link /
 email code) to its stdout — that stream is the human's device; the harness never
 reads it.
 
+## C. Recorded video (no voiceover — screen-only)
+
+```bash
+node demo/record-demo.mjs                      # records demo/recordings/secondsign-demo-totp.mp4
+DEMO_WALL=push DEMO_AUTO_APPROVE=1 node demo/record-demo.mjs   # factor-montage scenes
+```
+
+Drives the REAL harness end-to-end (browser executor → wall → approval → attested
+completion → second-run wall skip) and overlays an agent console on the captured
+page, so the narrative is visible in-frame. Requires ffmpeg for the mp4; videos
+are gitignored (upload to the application/outreach directly). For a fully
+human-passed recording, use scenario A with a real TOTP authenticator or a real
+device push instead of `DEMO_AUTO_APPROVE`.
+
 ## B. Real OpenCode agent (authenticity pass)
 
 ```json
