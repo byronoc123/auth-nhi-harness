@@ -41,7 +41,7 @@ describe("Guardrails", () => {
   });
 
   it("parses env config", () => {
-    const parsed = loadGuardrailConfig({ AUTH_NHI_ALLOWLIST: " a.com, b.org ", AUTH_NHI_LEGACY_REPLAY: "1" });
+    const parsed = loadGuardrailConfig({ SECONDSIGN_ALLOWLIST: " a.com, b.org ", SECONDSIGN_LEGACY_REPLAY: "1" });
     expect(parsed.allowlist).toEqual(["a.com", "b.org"]);
     expect(parsed.legacySessionReplay).toBe(true);
   });

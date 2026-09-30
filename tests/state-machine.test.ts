@@ -60,7 +60,7 @@ describe("State machine", () => {
   });
 
   it("persists across processes", () => {
-    const storePath = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "auth-nhi-")), "tickets.json");
+    const storePath = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "secondsign-")), "tickets.json");
     const sm1 = new StateMachine(storePath);
     const t = sm1.create("github.com", "mfa_required");
     sm1.requestStepUp(t.id, "MANUAL");

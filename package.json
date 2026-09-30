@@ -1,13 +1,14 @@
 {
-  "name": "@auth-nhi/mcp-harness",
-  "version": "0.1.0",
-  "description": "Step-up auth & governance for agentic processes. MCP harness that turns 2FA/step-up boundaries into human-verified, attested state transitions.",
+  "name": "@secondsign/mcp-harness",
+  "version": "0.1.1",
+  "description": "SecondSign — step-up auth & governance for agentic processes. MCP harness that turns 2FA/step-up boundaries into human-verified, attested state transitions.",
+  "homepage": "https://secondsign.app",
   "type": "module",
   "license": "Apache-2.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "auth-nhi": "./dist/cli.js"
+    "secondsign": "./dist/cli.js"
   },
   "files": [
     "dist",

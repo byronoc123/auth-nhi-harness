@@ -1,6 +1,6 @@
 import { TOTP, Secret } from "otpauth";
 
-export function generateTotp(secretBase32: string, issuer = "auth-nhi", label = "agent"): string {
+export function generateTotp(secretBase32: string, issuer = "secondsign", label = "agent"): string {
   const totp = new TOTP({
     issuer,
     label,

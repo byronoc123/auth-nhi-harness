@@ -17,7 +17,7 @@ export const TOOL_DEFS: Tool[] = [
   {
     name: "exec_authenticated_action",
     description:
-      "Execute an action against an allowlisted target through the auth-nhi harness. " +
+      "Execute an action against an allowlisted target through the secondsign harness. " +
       "Returns the result for low_risk actions, or ELICITATION_REQUIRED when the action " +
       "requires human step-up verification. Targets must be systems you own or are " +
       "authorized to automate (see NOTICE).",
@@ -48,7 +48,7 @@ export const TOOL_DEFS: Tool[] = [
       "Resume a paused step-up ticket after human verification. For TOTP challenges, " +
       "provide the 6-digit code from the human (or 'auto' to derive it from the local " +
       "vault secret, if stored). For MANUAL challenges, the human must first run " +
-      "`auth-nhi approve <ticket_id>`. Returns a short-lived elevated token and attestation.",
+      "`secondsign approve <ticket_id>`. Returns a short-lived elevated token and attestation.",
     inputSchema: {
       type: "object",
       properties: {
@@ -190,7 +190,7 @@ export function handleVaultRefresh(ctx: HarnessContext, args: VaultRefreshArgs):
     identity_id: identity.id,
     instructions: [
       "1. Open the target system in your own browser and complete login (including 2FA).",
-      "2. Run `auth-nhi vault add --issuer <issuer> --subject <subject>` with fresh material if needed.",
+      "2. Run `secondsign vault add --issuer <issuer> --subject <subject>` with fresh material if needed.",
       "3. Re-run the agent action.",
     ],
     note: "Headful handoff (automatic browser window for passkeys/FIDO2) arrives in v0.2.",

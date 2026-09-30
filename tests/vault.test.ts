@@ -7,7 +7,7 @@ import { Vault } from "../src/vault/vault.js";
 
 describe("Vault", () => {
   it("roundtrips identities through encryption", () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "auth-nhi-vault-"));
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "secondsign-vault-"));
     const file = path.join(dir, "vault.enc");
     const key = randomBytes(32);
 
@@ -28,7 +28,7 @@ describe("Vault", () => {
   });
 
   it("fails to decrypt with the wrong key", () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "auth-nhi-vault-"));
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "secondsign-vault-"));
     const file = path.join(dir, "vault.enc");
     const v1 = new Vault(file, randomBytes(32));
     v1.addIdentity({ issuer: "github.com", subject: "a" });
@@ -38,7 +38,7 @@ describe("Vault", () => {
   });
 
   it("creates and reuses a machine key file", () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "auth-nhi-key-"));
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "secondsign-key-"));
     const keyPath = path.join(dir, ".key");
     const k1 = Vault.ensureMachineKey(keyPath);
     const k2 = Vault.ensureMachineKey(keyPath);
@@ -47,7 +47,7 @@ describe("Vault", () => {
   });
 
   it("removes identities", () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "auth-nhi-vault-"));
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "secondsign-vault-"));
     const v = new Vault(path.join(dir, "vault.enc"), randomBytes(32));
     const identity = v.addIdentity({ issuer: "x", subject: "y" });
     expect(v.remove(identity.id)).toBe(true);
@@ -56,7 +56,7 @@ describe("Vault", () => {
   });
 
   it("matches subdomains against the registrable identity issuer", () => {
-    const v = new Vault(path.join(fs.mkdtempSync(path.join(os.tmpdir(), "auth-nhi-vault-")), "v.enc"), randomBytes(32));
+    const v = new Vault(path.join(fs.mkdtempSync(path.join(os.tmpdir(), "secondsign-vault-")), "v.enc"), randomBytes(32));
     v.addIdentity({ issuer: "github.com", subject: "you@example.com" });
     expect(v.findByIdentity("api.github.com")?.issuer).toBe("github.com");
     expect(v.findByIdentity("evil.io")).toBeUndefined();

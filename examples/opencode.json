@@ -1,8 +1,8 @@
 {
   "mcpServers": {
-    "auth-nhi": {
+    "secondsign": {
       "command": "npx",
-      "args": ["-y", "@auth-nhi/mcp-harness", "serve"]
+      "args": ["-y", "@secondsign/mcp-harness", "serve"]
     }
   }
 }

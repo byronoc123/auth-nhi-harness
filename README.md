@@ -1,6 +1,8 @@
-# auth-nhi
+# SecondSign
 
 **Step-up auth & governance for agentic processes.**
+
+Every agent action, human-signed.
 
 An MCP harness that turns 2FA / step-up authentication boundaries into
 human-verified, cryptographically attested state transitions — so AI agents
@@ -19,7 +21,7 @@ The agent never "handles" 2FA. When a privileged action hits a step-up
 boundary, the harness **pauses execution state and issues a challenge ticket**:
 
 ```
-Agent ── exec_authenticated_action ──> auth-nhi harness ──> Target system
+Agent ── exec_authenticated_action ──> secondsign harness ──> Target system
                                           │
                               2FA/step-up boundary detected
                                           │
@@ -27,7 +29,7 @@ Agent ── exec_authenticated_action ──> auth-nhi harness ──> Target s
                           2. Return ELICITATION_REQUIRED to the agent
                                           │
         Human approves out-of-band:       │
-        - `npx auth-nhi approve tkt_...`  │
+        - `npx secondsign approve tkt_...`  │
         - or supplies TOTP code           │
         - or completes passkey push (v0.2)│
                                           │
@@ -50,8 +52,8 @@ Design principles:
 ## Quickstart
 
 ```bash
-npm install @auth-nhi/mcp-harness
-npx auth-nhi vault add --issuer github.com --subject you@example.com --totp-secret <BASE32>
+npm install @secondsign/mcp-harness
+npx secondsign vault add --issuer github.com --subject you@example.com --totp-secret <BASE32>
 ```
 
 Wire it into your agent (OpenCode example):
@@ -59,9 +61,9 @@ Wire it into your agent (OpenCode example):
 ```json
 {
   "mcpServers": {
-    "auth-nhi": {
+    "secondsign": {
       "command": "npx",
-      "args": ["auth-nhi", "serve"]
+      "args": ["secondsign", "serve"]
     }
   }
 }
@@ -73,7 +75,7 @@ Agent behavior contract (put this in your agent's system prompt):
 1. If a tool returns status "ELICITATION_REQUIRED" / error_code
    "AUTH_STEP_UP_REQUIRED": DO NOT retry, guess codes, or re-click anything.
 2. Surface the ticket to the human: "Action X requires verification
-   (ticket tkt_...). Please approve via `auth-nhi approve` or provide a code."
+   (ticket tkt_...). Please approve via `secondsign approve` or provide a code."
 3. Call resume_stepup_session with ticket_id (+ challenge_response if TOTP).
 4. On success, proceed with the elevated token. On denial/expiry, stop.
 ```
@@ -89,17 +91,17 @@ Agent behavior contract (put this in your agent's system prompt):
 
 ## Guardrails (legal by construction)
 
-- **Allowlist-only targets.** Set `AUTH_NHI_ALLOWLIST=github.com,internal.corp`.
+- **Allowlist-only targets.** Set `SECONDSIGN_ALLOWLIST=github.com,internal.corp`.
   Anything else is blocked with `TARGET_BLOCKED`.
-- **Legacy session replay is disabled by default.** `AUTH_NHI_LEGACY_REPLAY=1`
+- **Legacy session replay is disabled by default.** `SECONDSIGN_LEGACY_REPLAY=1`
   enables it explicitly for first-party systems you are contractually entitled
   to automate. See [docs/LEGAL-POSITION.md](./docs/LEGAL-POSITION.md).
 - Challenge responses are consumed, never logged.
 
 ## Vault
 
-Local encrypted store at `~/.auth-nhi/vault.enc` (AES-256-GCM, machine key at
-`~/.auth-nhi/.key`, mode 0600). OSS tier = local machine; enterprise tier =
+Local encrypted store at `~/.secondsign/vault.enc` (AES-256-GCM, machine key at
+`~/.secondsign/.key`, mode 0600). OSS tier = local machine; enterprise tier =
 OS keychain / HashiCorp Vault / AWS KMS with rotation.
 
 ## Documentation
@@ -114,7 +116,7 @@ OS keychain / HashiCorp Vault / AWS KMS with rotation.
 
 - [x] v0.1 — Step-up state machine, TOTP + manual HITL, encrypted local vault, guardrails, MCP stdio server
 - [ ] v0.2 — Passkey/FIDO2 handoff (headful), Slack/Teams HITL delivery, webhook audit export
-- [ ] v0.3 — `auth-nhi discover` (agent identity scanning — map-nhi module)
+- [ ] v0.3 — `secondsign discover` (agent identity scanning — map-nhi module)
 - [ ] v1.0 — Enterprise control plane: multi-tenant policy engine, Okta/Entra OIDC bridge, attestation log (SaaS / self-hosted)
 
 ## License

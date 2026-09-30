@@ -1,25 +1,24 @@
 #!/usr/bin/env node
 import os from "node:os";
-import path from "node:path";
 import { Vault } from "./vault/vault.js";
 import { StateMachine, defaultTicketsPath, StepUpError } from "./stepup/state-machine.js";
 import { verifyTotp } from "./auth/totp.js";
 import { startHarness } from "./server.js";
 
-const USAGE = `auth-nhi — step-up auth & governance for agentic processes
+const USAGE = `secondsign — step-up auth & governance for agentic processes
 
 Usage:
-  auth-nhi serve                          Start the MCP stdio server (default)
-  auth-nhi approve <ticket_id>            Record human approval for a step-up ticket
+  secondsign serve                          Start the MCP stdio server (default)
+  secondsign approve <ticket_id>            Record human approval for a step-up ticket
       --code <6-digits>                   Verify with a TOTP code (optional)
       --deny                              Deny the step-up instead
       --by <name>                         Who approved (default: human:cli)
-  auth-nhi vault add                      Add an identity to the local vault
+  secondsign vault add                      Add an identity to the local vault
       --issuer <host>                     e.g. github.com
       --subject <id>                      e.g. you@example.com
       --totp-secret <BASE32>              Optional TOTP shared secret (opt-in)
-  auth-nhi vault list                     List vault identities (secrets redacted)
-  auth-nhi status                         Show active step-up tickets
+  secondsign vault list                     List vault identities (secrets redacted)
+  secondsign status                         Show active step-up tickets
 `;
 
 export async function main(argv: string[]): Promise<void> {
@@ -64,7 +63,7 @@ function approve(args: string[]): void {
   const ticketId = args.find((a) => !a.startsWith("--"));
   const flags = parseFlags(args);
   if (!ticketId) {
-    process.stderr.write("Usage: auth-nhi approve <ticket_id> [--code <digits>] [--deny]\n");
+    process.stderr.write("Usage: secondsign approve <ticket_id> [--code <digits>] [--deny]\n");
     process.exitCode = 1;
     return;
   }
@@ -116,7 +115,7 @@ function vaultCmd(args: string[]): void {
     const issuer = flags.issuer;
     const subject = flags.subject;
     if (typeof issuer !== "string" || typeof subject !== "string") {
-      process.stderr.write("Usage: auth-nhi vault add --issuer <host> --subject <id> [--totp-secret <BASE32>]\n");
+      process.stderr.write("Usage: secondsign vault add --issuer <host> --subject <id> [--totp-secret <BASE32>]\n");
       process.exitCode = 1;
       return;
     }
@@ -134,7 +133,7 @@ function vaultCmd(args: string[]): void {
     }
     return;
   }
-  process.stderr.write("Usage: auth-nhi vault <add|list>\n");
+  process.stderr.write("Usage: secondsign vault <add|list>\n");
   process.exitCode = 1;
 }
 
@@ -150,10 +149,7 @@ function statusCmd(): void {
   }
 }
 
-const isDirectRun = process.argv[1] && import.meta.url.endsWith(path.basename(process.argv[1]));
-if (isDirectRun) {
-  main(process.argv.slice(2)).catch((error) => {
-    process.stderr.write(`${error instanceof Error ? error.stack : String(error)}\n`);
-    process.exit(1);
-  });
-}
+main(process.argv.slice(2)).catch((error) => {
+  process.stderr.write(`${error instanceof Error ? error.stack : String(error)}\n`);
+  process.exit(1);
+});

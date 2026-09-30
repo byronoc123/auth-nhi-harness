@@ -1,4 +1,4 @@
-# Legal Position — auth-nhi
+# Legal Position — secondsign
 
 Read with [NOTICE](../NOTICE). This document states how we handle the legal risk
 identified in the launch review (`docs/business/LAUNCH-REVIEW.md`).
@@ -15,7 +15,7 @@ identified in the launch review (`docs/business/LAUNCH-REVIEW.md`).
 
 ## 2. What is gated (enabled only by explicit, auditable configuration)
 
-- **Legacy session replay** (`AUTH_NHI_LEGACY_REPLAY=1`): injecting stored
+- **Legacy session replay** (`SECONDSIGN_LEGACY_REPLAY=1`): injecting stored
   session material for systems lacking modern auth. Permitted **only** for
   first-party systems where the operator's contract authorizes automation
   (e.g., your own SaaS product's staging environment).

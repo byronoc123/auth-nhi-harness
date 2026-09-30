@@ -19,8 +19,8 @@ export function buildElicitation(ticket: StepUpTicket): ElicitationPayload {
   const ttl = ticket.challenge?.ttlSeconds ?? 300;
   const message =
     method === "TOTP"
-      ? "Action requires Multi-Factor Authentication. Ask the human for their 6-digit code, or have them run `auth-nhi approve <ticket>`."
-      : "Action requires human verification. The human must run `auth-nhi approve <ticket>` out-of-band.";
+      ? "Action requires Multi-Factor Authentication. Ask the human for their 6-digit code, or have them run `secondsign approve <ticket>`."
+      : "Action requires human verification. The human must run `secondsign approve <ticket>` out-of-band.";
   return {
     status: "ELICITATION_REQUIRED",
     error_code: "AUTH_STEP_UP_REQUIRED",

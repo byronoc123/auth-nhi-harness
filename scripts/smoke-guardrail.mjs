@@ -1,6 +1,6 @@
 import { loadGuardrailConfig, assertTargetAllowed, assertReplayPermitted, GuardrailError } from "../dist/policy/guardrails.js";
 
-const cfg = loadGuardrailConfig({ AUTH_NHI_ALLOWLIST: "example.com" });
+const cfg = loadGuardrailConfig({ SECONDSIGN_ALLOWLIST: "example.com" });
 
 assertTargetAllowed("https://example.com/x", cfg);
 assertTargetAllowed("https://api.example.com/x", cfg);

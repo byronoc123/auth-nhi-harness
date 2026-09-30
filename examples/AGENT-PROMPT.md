@@ -1,6 +1,6 @@
 # Agent Behavior Contract (paste into your agent's system prompt)
 
-The `auth-nhi` MCP harness enforces step-up verification. Follow this contract exactly:
+The `secondsign` MCP harness enforces step-up verification. Follow this contract exactly:
 
 1. If a tool response contains `status: "ELICITATION_REQUIRED"` with
    `error_code: "AUTH_STEP_UP_REQUIRED"`:
@@ -9,7 +9,7 @@ The `auth-nhi` MCP harness enforces step-up verification. Follow this contract e
    - Surface the ticket to the human immediately, e.g.:
      "Action X requires verification (ticket `tkt_...`, method TOTP).
      Please either provide your 6-digit code, or run:
-     `npx auth-nhi approve tkt_...`"
+     `npx secondsign approve tkt_...`"
 2. Call `resume_stepup_session` with `ticket_id` and, for TOTP challenges,
    `challenge_response` set to the human's code (or `"auto"` only if the human
    has confirmed a secret is stored in their vault).

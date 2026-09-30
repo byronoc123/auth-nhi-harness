@@ -74,7 +74,7 @@ const ALLOWED: Record<StepUpStatus, StepUpStatus[]> = {
 };
 
 export function defaultTicketsPath(): string {
-  return path.join(os.homedir(), ".auth-nhi", "tickets.json");
+  return path.join(os.homedir(), ".secondsign", "tickets.json");
 }
 
 export class StateMachine {
@@ -134,7 +134,7 @@ export class StateMachine {
       if (!t.approval || t.approval.consumed) {
         throw new StepUpError(
           "AUTH_AWAITING_HUMAN",
-          "Human approval required via `auth-nhi approve <ticket>` before resuming",
+          "Human approval required via `secondsign approve <ticket>` before resuming",
         );
       }
       t.approval.consumed = true;

@@ -1,6 +1,6 @@
 export const LAWFUL_USE_NOTICE =
   "Targets must be systems you own, operate, or are contractually authorized to automate. " +
-  "Legacy session replay is disabled unless explicitly enabled (AUTH_NHI_LEGACY_REPLAY=1). " +
+  "Legacy session replay is disabled unless explicitly enabled (SECONDSIGN_LEGACY_REPLAY=1). " +
   "See the NOTICE file.";
 
 export class GuardrailError extends Error {
@@ -19,11 +19,11 @@ export interface GuardrailConfig {
 }
 
 export function loadGuardrailConfig(env: NodeJS.ProcessEnv = process.env): GuardrailConfig {
-  const allowlist = (env.AUTH_NHI_ALLOWLIST ?? "")
+  const allowlist = (env.SECONDSIGN_ALLOWLIST ?? "")
     .split(",")
     .map((s) => s.trim().toLowerCase())
     .filter(Boolean);
-  const legacySessionReplay = env.AUTH_NHI_LEGACY_REPLAY === "1";
+  const legacySessionReplay = env.SECONDSIGN_LEGACY_REPLAY === "1";
   return { allowlist, legacySessionReplay };
 }
 
@@ -45,7 +45,7 @@ export function assertTargetAllowed(targetUrl: string, cfg: GuardrailConfig): UR
   if (!cfg.allowlist.some((entry) => matchesEntry(host, entry))) {
     throw new GuardrailError(
       "TARGET_BLOCKED",
-      `Target host "${host}" is not in the allowlist (configure AUTH_NHI_ALLOWLIST)`,
+      `Target host "${host}" is not in the allowlist (configure SECONDSIGN_ALLOWLIST)`,
     );
   }
   return url;
@@ -56,7 +56,7 @@ export function assertReplayPermitted(cfg: GuardrailConfig): void {
     throw new GuardrailError(
       "LEGAL_BLOCKED",
       "Legacy session replay is disabled by default. Enable only for first-party systems " +
-        "you are authorized to automate: AUTH_NHI_LEGACY_REPLAY=1. See NOTICE.",
+        "you are authorized to automate: SECONDSIGN_LEGACY_REPLAY=1. See NOTICE.",
     );
   }
 }

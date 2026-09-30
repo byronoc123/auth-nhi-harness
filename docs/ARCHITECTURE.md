@@ -1,4 +1,4 @@
-# Architecture — auth-nhi MCP Harness (v0.1)
+# Architecture — secondsign MCP Harness (v0.1)
 
 ## Component map
 
@@ -9,7 +9,7 @@
 └──────────────┬───────────────────────────────────────────────────────┘
                │
 ┌──────────────▼───────────────────────────────────────────────────────┐
-│ auth-nhi MCP Harness                                                 │
+│ secondsign MCP Harness                                                 │
 │                                                                      │
 │  ┌──────────────┐  ┌───────────────┐  ┌────────────────────────────┐ │
 │  │ tools/       │  │ stepup/       │  │ policy/guardrails          │ │
@@ -17,7 +17,7 @@
 │  │ resume       │  │ tickets       │  └────────────────────────────┘ │
 │  │ vault_*      │  └──────┬────────┘                                  │
 │  └──────┬───────┘         │                                           │
-│         │          persists│to ~/.auth-nhi/tickets.json               │
+│         │          persists│to ~/.secondsign/tickets.json               │
 │  ┌──────▼───────┐  ┌──────▼────────┐  ┌────────────────────────────┐ │
 │  │ elicitation/ │  │ auth/         │  │ vault/                     │ │
 │  │ HITL payload │  │ totp, token   │  │ AES-256-GCM local store    │ │
@@ -26,7 +26,7 @@
 └──────────────┬───────────────────────────────────────────────────────┘
                │
 ┌──────────────▼───────────────────────────────────────────────────────┐
-│ Human (out-of-band): CLI `auth-nhi approve`, TOTP code, passkey (v0.2)│
+│ Human (out-of-band): CLI `secondsign approve`, TOTP code, passkey (v0.2)│
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -48,8 +48,8 @@
 ## Cross-process flow
 
 1. Agent (MCP client) calls `exec_authenticated_action` in the harness server process.
-2. Step-up required → ticket persisted to `~/.auth-nhi/tickets.json`, status `AWAITING_HUMAN`.
-3. Human runs `auth-nhi approve tkt_...` in a **separate process** → loads ticket store,
+2. Step-up required → ticket persisted to `~/.secondsign/tickets.json`, status `AWAITING_HUMAN`.
+3. Human runs `secondsign approve tkt_...` in a **separate process** → loads ticket store,
    records approval, persists.
 4. Agent calls `resume_stepup_session(tkt_id)` → harness verifies (TOTP code or consumed
    human approval) → mints 5-minute elevated token → attestation recorded.

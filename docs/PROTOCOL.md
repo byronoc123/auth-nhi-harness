@@ -70,7 +70,7 @@ IdP bridge and headful handoff.
 | Challenge method | Verification | Notes |
 |---|---|---|
 | `TOTP` | `challenge_response` = 6-digit code verified against vault secret (±1 window); or `"auto"` to derive from vault secret if stored | Secret never returned, only verified |
-| `MANUAL` / `PUSH` / `PASSKEY` | Human approval recorded via `auth-nhi approve <ticket>` (separate process), consumed exactly once | v0.2 adds push/passkey assertion verification |
+| `MANUAL` / `PUSH` / `PASSKEY` | Human approval recorded via `secondsign approve <ticket>` (separate process), consumed exactly once | v0.2 adds push/passkey assertion verification |
 
 ### Elevated token
 
@@ -82,8 +82,8 @@ v1.0 (control plane) upgrades this to IdP-issued tokens via RFC 8693 token excha
 
 | error_code | Meaning |
 |---|---|
-| `TARGET_BLOCKED` | Target host not in allowlist (`AUTH_NHI_ALLOWLIST`) |
-| `LEGAL_BLOCKED` | Operation requires legacy session replay while `AUTH_NHI_LEGACY_REPLAY` is off |
+| `TARGET_BLOCKED` | Target host not in allowlist (`SECONDSIGN_ALLOWLIST`) |
+| `LEGAL_BLOCKED` | Operation requires legacy session replay while `SECONDSIGN_LEGACY_REPLAY` is off |
 | `AUTH_TICKET_NOT_FOUND` | Unknown/expired-pruned ticket |
 | `AUTH_TICKET_EXPIRED` | Ticket elapsed TTL |
 | `AUTH_INVALID_CODE` | TOTP verification failed |

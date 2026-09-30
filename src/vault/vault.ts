@@ -22,11 +22,11 @@ export class Vault {
   ) {}
 
   static defaultPath(): string {
-    return path.join(os.homedir(), ".auth-nhi", "vault.enc");
+    return path.join(os.homedir(), ".secondsign", "vault.enc");
   }
 
   static defaultKeyPath(): string {
-    return path.join(os.homedir(), ".auth-nhi", ".key");
+    return path.join(os.homedir(), ".secondsign", ".key");
   }
 
   static ensureMachineKey(keyPath = Vault.defaultKeyPath()): Buffer {
