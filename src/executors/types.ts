@@ -1,0 +1,1 @@
+export type Record_ = Record<string, unknown>;

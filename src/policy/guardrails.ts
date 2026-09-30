@@ -31,6 +31,8 @@ function matchesEntry(host: string, entry: string): boolean {
   return host === entry || host.endsWith(`.${entry}`);
 }
 
+const LOOPBACK_HOSTS = new Set(["localhost", "127.0.0.1", "[::1]", "::1"]);
+
 export function assertTargetAllowed(targetUrl: string, cfg: GuardrailConfig): URL {
   let url: URL;
   try {
@@ -38,11 +40,14 @@ export function assertTargetAllowed(targetUrl: string, cfg: GuardrailConfig): UR
   } catch {
     throw new GuardrailError("TARGET_BLOCKED", `Invalid URL: ${targetUrl}`);
   }
-  if (url.protocol !== "https:") {
-    throw new GuardrailError("TARGET_BLOCKED", "Only https:// targets are permitted");
-  }
   const host = url.host.toLowerCase();
-  if (!cfg.allowlist.some((entry) => matchesEntry(host, entry))) {
+  const hostname = url.hostname.toLowerCase();
+  const isLoopback = LOOPBACK_HOSTS.has(hostname) || hostname === "::1" || hostname.startsWith("127.");
+  // Loopback is first-party by definition (your own machine); http allowed there only.
+  if (url.protocol !== "https:" && !(url.protocol === "http:" && isLoopback)) {
+    throw new GuardrailError("TARGET_BLOCKED", "Only https:// targets are permitted (http is allowed for loopback hosts only)");
+  }
+  if (!cfg.allowlist.some((entry) => matchesEntry(hostname, entry))) {
     throw new GuardrailError(
       "TARGET_BLOCKED",
       `Target host "${host}" is not in the allowlist (configure SECONDSIGN_ALLOWLIST)`,

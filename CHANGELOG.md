@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.3.0 — 2026-09-30
+
+**The execution adapter release — the harness now actually executes.**
+
+- **Browser executor** (`mode: "browser"`): Playwright-driven web flow against
+  first-party targets — login, wall detection (URL pattern / OTP-form presence),
+  frozen page state across the step-up pause, TOTP injection on resume, action
+  completion with attestation headers injected, and captured evidence
+  (final URL, title, page text, headers sent). Playwright is an optional peer
+  dependency; the package works without it.
+- **HTTP executor** (`mode: "http"`): API calls with `x-secondsign-*` assertion headers.
+- **Loopback exception**: http:// is permitted for loopback hosts only (localhost,
+  127.x) — first-party by definition; allowlist matching now port-agnostic (hostname).
+- **Demo target app** (`demo/target-app.mjs`): zero-dependency first-party web app
+  with a real TOTP 2FA wall that echoes received assertion headers — the money
+  demo. `demo/run-agent.mjs` = scripted agent loop; `demo/DEMO.md` = recording +
+  OpenCode config guide.
+- **Integration test**: full HTTP flow through the wall (login → bounce → wrong OTP
+  rejected → live TOTP passes → action unattested warns → attested echoes) — runs in CI.
+
 ## 0.2.0 — 2026-09-30
 
 The "battlecard features become real code" release. Three competitive primitives,

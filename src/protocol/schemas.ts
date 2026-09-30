@@ -7,6 +7,11 @@ export const ExecAuthenticatedActionArgs = z.object({
   target_resource: z.string().min(1),
   action_payload: z.record(z.unknown()).default({}),
   required_auth_level: z.enum(AuthLevels).default("mfa_required"),
+  mode: z.enum(["simulate", "http", "browser"]).default("simulate"),
+  credentials: z
+    .object({ username: z.string().min(1), password: z.string().min(1) })
+    .optional(),
+  config: z.record(z.unknown()).optional(),
 });
 export type ExecAuthenticatedActionArgs = z.infer<typeof ExecAuthenticatedActionArgs>;
 

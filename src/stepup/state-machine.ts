@@ -37,6 +37,9 @@ export interface AttestationRecord {
 
 export interface StepUpTicket {
   contextHash?: string;
+  execMode?: "http" | "browser";
+  execUrl?: string;
+  action?: Record<string, unknown>;
   id: string;
   targetHost: string;
   authLevel: AuthLevel;
@@ -88,7 +91,11 @@ export class StateMachine {
     this.load();
   }
 
-  create(targetHost: string, authLevel: AuthLevel, contextHash?: string): StepUpTicket {
+  create(
+    targetHost: string,
+    authLevel: AuthLevel,
+    opts: { contextHash?: string; execMode?: "http" | "browser"; execUrl?: string; action?: Record<string, unknown> } = {},
+  ): StepUpTicket {
     const now = Date.now();
     const ticket: StepUpTicket = {
       id: `tkt_${randomBytes(5).toString("hex")}`,
@@ -97,7 +104,10 @@ export class StateMachine {
       status: "RUNNING",
       createdAt: now,
       updatedAt: now,
-      contextHash,
+      contextHash: opts.contextHash,
+      execMode: opts.execMode,
+      execUrl: opts.execUrl,
+      action: opts.action,
       history: [{ at: now, event: "CREATED" }],
     };
     this.tickets.set(ticket.id, ticket);
