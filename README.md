@@ -31,12 +31,29 @@ Agent ── exec_authenticated_action ──> SecondSign harness ──> Target
         Human approves out-of-band:       │
         - `npx secondsign approve tkt_..` │
         - or supplies TOTP code           │
-        - or completes passkey push (v0.2)│
+        - or approves the push on their   │
+          device (harness watches the     │
+          wall clear — zero typing)       │
+        - or completes passkey / captcha  │
+          in a headful window (handoff)   │
+        - or clicks the emailed magic     │
+          link in their own browser       │
                                           │
         3. resume_stepup_session → ephemeral single-use action grant (60s)
         4. Session steps DOWN to read-only (900s) after the action
         5. Attestation: who approved, what, when — bound to the action context
 ```
+
+### Phase 1: every wall, every factor (v0.4)
+
+| Capability | What it gives you |
+|---|---|
+| **Push auto wall-clear** | The agent triggers "send push"; the harness watches (DOM mutations + navigation + poll) for the wall clearing and auto-resumes attested — the human just taps their phone |
+| **Headful handoff (passkey / FIDO2 / YubiKey)** | WebAuthn challenge detected → a browser window opens for the human → Touch ID / hardware key completes → session state transfers back; the factor the agent can never hold becomes a 10-second human touch |
+| **Unified wall state machine** | Config-only factor support: new walls (selectors / URL patterns) need zero harness code changes; `wall_appeared / wall_cleared / wall_error` events land in the ticket history |
+| **Email magic-link & OTP routing** | The harness never reads the mailbox: the human clicks the link (or reads the code) themselves; completion is detected via redirect |
+| **Captcha boundary (hard HITL)** | Captcha walls are detected and **never auto-solved** — the only path is human handoff |
+| **Session persistence with TTL** | Post-auth browser state is encrypted into the vault (AES-256-GCM) with a TTL + refresh flow — the second run of an action skips the wall, still ticketed + attested (`SESSION` provenance) |
 
 ### v0.2 primitives (battlecard features, in real code)
 
@@ -126,9 +143,13 @@ OS keychain / HashiCorp Vault / AWS KMS with rotation.
 ## Status & roadmap
 
 - [x] v0.1 — Step-up state machine, TOTP + manual HITL, encrypted local vault, guardrails, MCP stdio server
-- [ ] v0.2 — Passkey/FIDO2 handoff (headful), Slack/Teams HITL delivery, webhook audit export
-- [ ] v0.3 — `secondsign discover` (agent identity scanning — map-nhi module)
-- [ ] v1.0 — Enterprise control plane: multi-tenant policy engine, Okta/Entra OIDC bridge, attestation log (SaaS / self-hosted)
+- [x] v0.2 — Agent Lock context binding, ephemeral single-use grants, step-down scoping, attestation hash
+- [x] v0.3 — Browser + HTTP executors, real-wall money demo, assertion headers
+- [x] v0.4 — Push auto wall-clear, headful passkey/FIDO2 handoff, unified wall state machine (config-only factors), magic-link routing, captcha hard-HITL boundary, session persistence with TTL
+- [ ] v0.5–0.6 (EE) — IdP step-up bridge (Okta/Entra/Ping), IdP-issued grants (Token Exchange), vault integrations, policy engine, Slack/Teams HITL, audit export
+- [ ] v1.0 — Enterprise control plane: multi-tenant policy engine, OIDC bridge, attestation log (SaaS / self-hosted)
+
+See [docs/ROADMAP.md](./docs/ROADMAP.md) for the gated feature plan.
 
 ## License
 

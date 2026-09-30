@@ -40,7 +40,7 @@ export async function startHarness(): Promise<void> {
   const ctx: HarnessContext = { state, vault, machineKey, singleUseStore: createSingleUseStore() };
 
   const server = new Server(
-    { name: "secondsign-mcp-harness", version: "0.1.0" },
+    { name: "secondsign-mcp-harness", version: "0.4.0" },
     { capabilities: { tools: {} } },
   );
 

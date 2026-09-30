@@ -19,6 +19,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      - run: npx playwright install chromium --with-deps
       - run: npm test
       - name: Guardrail smoke test (replay blocked by default)
         run: node scripts/smoke-guardrail.mjs

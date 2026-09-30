@@ -11,10 +11,24 @@ export interface VaultIdentity {
   createdAt: number;
 }
 
+export interface VaultSession {
+  host: string;
+  data: unknown;
+  createdAt: number;
+  expiresAt: number;
+}
+
+interface VaultFile {
+  v?: number;
+  identities: VaultIdentity[];
+  sessions?: Record<string, VaultSession>;
+}
+
 const ALG = "aes-256-gcm";
 
 export class Vault {
   private identities = new Map<string, VaultIdentity>();
+  private sessions = new Map<string, VaultSession>();
 
   constructor(
     private filePath: string,
@@ -39,27 +53,38 @@ export class Vault {
 
   load(): void {
     if (!fs.existsSync(this.filePath)) return;
-    const raw = JSON.parse(fs.readFileSync(this.filePath, "utf8")) as {
-      iv: string;
-      tag: string;
-      data: string;
-    };
+    const raw = JSON.parse(fs.readFileSync(this.filePath, "utf8")) as
+      | VaultIdentity[]
+      | ({ iv: string; tag: string; data: string } & { plaintext?: never });
+    if (Array.isArray(raw)) {
+      for (const identity of raw) this.identities.set(identity.id, identity);
+      return;
+    }
     const decipher = createDecipheriv(ALG, this.key, Buffer.from(raw.iv, "base64"));
     decipher.setAuthTag(Buffer.from(raw.tag, "base64"));
     const plaintext = Buffer.concat([
       decipher.update(Buffer.from(raw.data, "base64")),
       decipher.final(),
     ]).toString("utf8");
-    for (const identity of JSON.parse(plaintext) as VaultIdentity[]) {
+    const parsed = JSON.parse(plaintext) as VaultFile;
+    for (const identity of parsed.identities ?? []) {
       this.identities.set(identity.id, identity);
+    }
+    for (const [host, session] of Object.entries(parsed.sessions ?? {})) {
+      this.sessions.set(host, session);
     }
   }
 
   save(): void {
     const iv = randomBytes(12);
     const cipher = createCipheriv(ALG, this.key, iv);
+    const file: VaultFile = {
+      v: 2,
+      identities: [...this.identities.values()],
+      sessions: Object.fromEntries(this.sessions),
+    };
     const data = Buffer.concat([
-      cipher.update(Buffer.from(JSON.stringify([...this.identities.values()]), "utf8")),
+      cipher.update(Buffer.from(JSON.stringify(file), "utf8")),
       cipher.final(),
     ]);
     fs.mkdirSync(path.dirname(this.filePath), { recursive: true });
@@ -109,5 +134,46 @@ export class Vault {
     const existed = this.identities.delete(id);
     if (existed) this.save();
     return existed;
+  }
+
+  setSession(host: string, data: unknown, ttlSeconds: number): VaultSession {
+    const now = Date.now();
+    const session: VaultSession = { host, data, createdAt: now, expiresAt: now + ttlSeconds * 1000 };
+    this.sessions.set(host, session);
+    this.save();
+    return session;
+  }
+
+  getSession(host: string): VaultSession | undefined {
+    const session = this.sessions.get(host);
+    if (!session) return undefined;
+    if (Date.now() > session.expiresAt) {
+      this.sessions.delete(host);
+      this.save();
+      return undefined;
+    }
+    return session;
+  }
+
+  removeSession(host: string): boolean {
+    const existed = this.sessions.delete(host);
+    if (existed) this.save();
+    return existed;
+  }
+
+  listSessions(): VaultSession[] {
+    const now = Date.now();
+    let changed = false;
+    const live: VaultSession[] = [];
+    for (const [host, session] of this.sessions) {
+      if (now > session.expiresAt) {
+        this.sessions.delete(host);
+        changed = true;
+      } else {
+        live.push(session);
+      }
+    }
+    if (changed) this.save();
+    return live;
   }
 }

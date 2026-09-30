@@ -22,6 +22,22 @@ identified in the launch review (`docs/business/LAUNCH-REVIEW.md`).
 - Enterprise tier adds per-tenant enablement, legal review workflow, and
   immutable audit of every gated operation.
 
+## 2b. Captcha boundaries — hard human-in-the-loop (v0.4)
+
+Captcha challenges (reCAPTCHA, hCaptcha, Friendly Captcha, Cloudflare, or any
+configured equivalent) are detected and classified as a **hard HITL boundary**:
+
+- The harness **never auto-solves captchas**. There is no solving code path:
+  challenge responses are rejected for captcha walls, and the only completion
+  route is the headful handoff window where a human completes the challenge
+  themselves.
+- The agent may not interact with the captcha widget at any point; the
+  browser executor refuses challenge input against captcha walls
+  (`ILLEGAL_TRANSITION`).
+- Detection exists to **stop the agent** and route to the human — never to
+  evade bot-detection. This is a deliberate anti-evasion design: the boundary
+  exists to distinguish humans from automation, and we preserve it.
+
 ## 3. What is prohibited (will not be built, contributions rejected)
 
 - Interception of another person's authentication factors (SMS, email, push)

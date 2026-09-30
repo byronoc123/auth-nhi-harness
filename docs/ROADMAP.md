@@ -1,16 +1,17 @@
 # SecondSign Product Roadmap
 
 Canonical feature plan. Each item: source of inspiration, acceptance gate, tier
-(OSS = free harness · EE = enterprise control plane). Competitive framing lives in
-`docs/business/BATTLECARDS.md`; this document is product-facing.
+(OSS = free harness · EE = enterprise control plane). Competitive framing lives
+in the internal battlecards (kept out of this public document); this document is
+product-facing.
 
 ---
 
-## ✅ Shipped (v0.1 – v0.3.0)
+## ✅ Shipped (v0.1 – v0.4.0)
 
 | Feature | Tier | Proof |
 |---|---|---|
-| Step-up state machine (pause → verify → resume → attest) | OSS | 40 tests, file-backed tickets, cross-process CLI approval |
+| Step-up state machine (pause → verify → resume → attest) | OSS | file-backed tickets, cross-process CLI approval (mtime-reload fix in v0.4) |
 | Encrypted local vault (AES-256-GCM) + TOTP verify/auto | OSS | integration + unit tests |
 | Guardrails: allowlist, replay gate, loopback-first-party policy | OSS | CI smoke + tests |
 | Context binding — **Agent Lock** (canonical-JSON HMAC of action) | OSS | BIND_MISMATCH tests |
@@ -18,43 +19,26 @@ Canonical feature plan. Each item: source of inspiration, acceptance gate, tier
 | Agent Attestation Hash surfaced in elicitation + audit | OSS | money demo output |
 | Assertion headers (`x-secondsign-*`) | OSS | demo target echoes them |
 | Executors: **browser** (Playwright wall-detect/frozen-resume) + **http** | OSS | live money demo + wall integration test |
+| **Unified wall state machine** (DOM-mutation + navigation + poll; `wall_appeared/wall_cleared/wall_error` in history) | OSS | wall suite; config-only email-OTP variant gate |
+| **Push auto wall-clear detection** (zero-typing resume, `human:push-device`) | OSS | wall suite + demo (`DEMO_WALL=push`) |
+| **Headful handoff — passkey/FIDO2/YubiKey** (WebAuthn detect → headed window → state transfer) | OSS | wall handoff path; YubiKey/Touch ID video pending |
+| **Email magic-link & OTP routing** (mailbox never read; redirect detection) | OSS | wall suite + demo (`DEMO_WALL=magic`) |
+| **Captcha boundary — hard HITL, never auto-solved** | OSS | wall suite; LEGAL-POSITION §2b |
+| **Session persistence with TTL + refresh** (encrypted vault; second run skips the wall) | OSS | sessions suite + demo second run |
 
 ---
 
-## Phase 1 — Clear every wall (v0.4.x, weeks)
+## Phase 1 — Clear every wall (v0.4.x, weeks) — **SHIPPED v0.4.0**
 
 Goal: **factor-agnostic completeness** — any 2FA method a target throws, the agent
 survives. All OSS unless marked.
 
-1. **Auto wall-clear detection (Push factors)** — OSS
-   *Adapted from:* Okta Verify/Duo push UX. Agent clicks "send push" as part of frozen
-   state; harness polls URL/DOM-mutation for the wall clearing; auto-resumes with
-   attestation.
-   *Gate:* demo — Duo/Okta push approves an agent action with zero typing; new test in wall suite.
-
-2. **Headful handoff (Passkey / FIDO2 / YubiKey)** — OSS
-   *Adapted from:* our own elicitation protocol. Detect WebAuthn challenge → open headed
-   window (later: user's own browser via WebRTC/local relay) → human completes Touch ID /
-   hardware key → harness detects success, re-hides, resumes.
-   *Gate:* YubiKey + Touch ID demo video; the "factor agents can't hold" becomes a 10-second human touch.
-
-3. **Unified wall state machine** — OSS
-   DOM-mutation observer + navigation watcher: `wall_appeared / wall_cleared / wall_error`
-   events. New factors require zero harness changes — config only.
-   *Gate:* add a NEW demo wall variant (e.g., email OTP page) with config-only support.
-
-4. **Email magic-link & OTP routing** — OSS
-   Detect link-based walls → notify the human with the deep link → completion detected
-   via redirect. The mailbox is never read by the harness (lawful-use boundary).
-   *Gate:* magic-link flow demo.
-
-5. **Captcha boundary handling** — OSS
-   Detection + immediate HITL handoff. Never auto-solve. *Gate:* friendly-captcha demo; lawful-use doc updated.
-
-6. **Session persistence on success** — OSS
-   Post-auth storage state encrypted into the vault with TTL + refresh flow
-   (fewer walls per agent lifetime).
-   *Gate:* second run of the money demo skips the wall; vault shows session TTL.
+1. ~~**Auto wall-clear detection (Push factors)**~~ ✅ v0.4.0
+2. ~~**Headful handoff (Passkey / FIDO2 / YubiKey)**~~ ✅ v0.4.0 (demo-video gate pending: YubiKey + Touch ID recording)
+3. ~~**Unified wall state machine**~~ ✅ v0.4.0 (gate passed: email-OTP demo variant, config-only)
+4. ~~**Email magic-link & OTP routing**~~ ✅ v0.4.0
+5. ~~**Captcha boundary handling**~~ ✅ v0.4.0 (friendly-captcha demo variant + LEGAL-POSITION §2b; dedicated recording pending)
+6. ~~**Session persistence on success**~~ ✅ v0.4.0
 
 ## Phase 2 — Enterprise identity spine (v0.5 – v0.6, months)
 

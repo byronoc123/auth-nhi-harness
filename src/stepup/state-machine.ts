@@ -13,7 +13,7 @@ export type StepUpStatus =
   | "EXPIRED"
   | "COMPLETED";
 
-export type ChallengeMethod = "TOTP" | "MANUAL" | "PUSH" | "PASSKEY";
+export type ChallengeMethod = "TOTP" | "MANUAL" | "PUSH" | "PASSKEY" | "CAPTCHA" | "MAGIC_LINK" | "SESSION";
 
 export interface StepUpChallenge {
   method: ChallengeMethod;
@@ -40,6 +40,15 @@ export interface StepUpTicket {
   execMode?: "http" | "browser";
   execUrl?: string;
   action?: Record<string, unknown>;
+  execMeta?: {
+    wallKind?: string | null;
+    sent?: string[];
+    wallClearTimeoutMs?: number;
+    handoffTimeoutMs?: number;
+    handoffHeadless?: boolean;
+    sessionTtlSeconds?: number;
+    useSession?: boolean;
+  };
   id: string;
   targetHost: string;
   authLevel: AuthLevel;
@@ -83,6 +92,7 @@ export function defaultTicketsPath(): string {
 
 export class StateMachine {
   private tickets = new Map<string, StepUpTicket>();
+  private lastLoadedMtime = 0;
 
   constructor(
     private storePath?: string,
@@ -94,7 +104,13 @@ export class StateMachine {
   create(
     targetHost: string,
     authLevel: AuthLevel,
-    opts: { contextHash?: string; execMode?: "http" | "browser"; execUrl?: string; action?: Record<string, unknown> } = {},
+    opts: {
+      contextHash?: string;
+      execMode?: "http" | "browser";
+      execUrl?: string;
+      action?: Record<string, unknown>;
+      execMeta?: StepUpTicket["execMeta"];
+    } = {},
   ): StepUpTicket {
     const now = Date.now();
     const ticket: StepUpTicket = {
@@ -108,6 +124,7 @@ export class StateMachine {
       execMode: opts.execMode,
       execUrl: opts.execUrl,
       action: opts.action,
+      execMeta: opts.execMeta,
       history: [{ at: now, event: "CREATED" }],
     };
     this.tickets.set(ticket.id, ticket);
@@ -129,8 +146,40 @@ export class StateMachine {
     if (t.status !== "AWAITING_HUMAN") {
       throw new StepUpError("ILLEGAL_TRANSITION", `Cannot record approval on ticket in status ${t.status}`);
     }
+    if (t.approval) return t; // idempotent: never overwrite an existing human approval
     t.approval = { approvedBy, method, approvedAt: Date.now(), consumed: false };
     t.history.push({ at: Date.now(), event: "HUMAN_APPROVAL_RECORDED" });
+    this.save();
+    return t;
+  }
+
+  recordWallEvent(id: string, event: "wall_appeared" | "wall_cleared" | "wall_error" | "push_sent" | "magic_link_sent" | "handoff_opened", detail?: string): StepUpTicket {
+    const t = this.require(id);
+    t.history.push({ at: Date.now(), event: detail ? `${event} (${detail})` : event });
+    this.save();
+    return t;
+  }
+
+  setExecMeta(id: string, meta: { wallKind?: string | null; sent?: string[] }): StepUpTicket {
+    const t = this.require(id);
+    t.execMeta = { ...t.execMeta, ...meta };
+    this.save();
+    return t;
+  }
+
+  verifySessionRestored(id: string, host: string, expiresAt: number): StepUpTicket {
+    const t = this.require(id);
+    this.transition(t, "VERIFIED");
+    t.attestation = {
+      ticketId: t.id,
+      approvedBy: `vault:session@${host}`,
+      method: "SESSION",
+      approvedAt: Date.now(),
+    };
+    t.history.push({
+      at: Date.now(),
+      event: `SESSION_RESTORED (vault session established by human step-up; expires ${new Date(expiresAt).toISOString()})`,
+    });
     this.save();
     return t;
   }
@@ -179,6 +228,10 @@ export class StateMachine {
   }
 
   get(id: string): StepUpTicket | undefined {
+    // Cross-process visibility: another process (the approval CLI) may have
+    // written approvals/denials to the shared ticket store — reload when the
+    // file changed underneath us.
+    this.reloadIfChanged();
     const t = this.tickets.get(id);
     if (!t) return undefined;
     this.checkExpiry(t);
@@ -237,9 +290,24 @@ export class StateMachine {
   }
 
   private load(): void {
+    this.lastLoadedMtime = Date.now();
     if (!this.storePath || !fs.existsSync(this.storePath)) return;
+    try {
+      this.lastLoadedMtime = fs.statSync(this.storePath).mtimeMs;
+    } catch {}
     const raw = JSON.parse(fs.readFileSync(this.storePath, "utf8")) as { tickets: StepUpTicket[] };
+    this.tickets = new Map();
     for (const t of raw.tickets) this.tickets.set(t.id, t);
+  }
+
+  private reloadIfChanged(): void {
+    if (!this.storePath) return;
+    try {
+      const mtime = fs.statSync(this.storePath).mtimeMs;
+      if (mtime > this.lastLoadedMtime) this.load();
+    } catch {
+      // store missing/unreadable — keep in-memory state
+    }
   }
 
   private save(): void {
