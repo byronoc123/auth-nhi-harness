@@ -134,22 +134,18 @@ OS keychain / HashiCorp Vault / AWS KMS with rotation.
 
 ## Documentation
 
-- [Architecture](./docs/ARCHITECTURE.md)
 - [Step-up protocol & state machine](./docs/PROTOCOL.md)
-- [Threat model](./docs/THREAT-MODEL.md)
 - [Legal position](./docs/LEGAL-POSITION.md)
 - [Security policy](./SECURITY.md)
 
-## Status & roadmap
+## Status
 
-- [x] v0.1 — Step-up state machine, TOTP + manual HITL, encrypted local vault, guardrails, MCP stdio server
-- [x] v0.2 — Agent Lock context binding, ephemeral single-use grants, step-down scoping, attestation hash
-- [x] v0.3 — Browser + HTTP executors, real-wall money demo, assertion headers
-- [x] v0.4 — Push auto wall-clear, headful passkey/FIDO2 handoff, unified wall state machine (config-only factors), magic-link routing, captcha hard-HITL boundary, session persistence with TTL
-- [ ] v0.5–0.6 (EE) — IdP step-up bridge (Okta/Entra/Ping), IdP-issued grants (Token Exchange), vault integrations, policy engine, Slack/Teams HITL, audit export
-- [ ] v1.0 — Enterprise control plane: multi-tenant policy engine, OIDC bridge, attestation log (SaaS / self-hosted)
+- v0.1 — Step-up state machine, TOTP + manual HITL, encrypted local vault, guardrails, MCP stdio server
+- v0.2 — Agent Lock context binding, ephemeral single-use grants, step-down scoping, attestation hash
+- v0.3 — Browser + HTTP executors, real-wall money demo, assertion headers
+- v0.4 — Push auto wall-clear, headful passkey/FIDO2 handoff, unified wall state machine (config-only factors), magic-link routing, captcha hard-HITL boundary, session persistence with TTL
 
-See [docs/ROADMAP.md](./docs/ROADMAP.md) for the gated feature plan.
+See [CHANGELOG.md](./CHANGELOG.md) for release details.
 
 ## License
 
