@@ -40,6 +40,45 @@ survives. All OSS unless marked.
 5. ~~**Captcha boundary handling**~~ ✅ v0.4.0 (friendly-captcha demo variant + LEGAL-POSITION §2b; dedicated recording pending)
 6. ~~**Session persistence on success**~~ ✅ v0.4.0
 
+## Phase 1.5 — Deep-problem seeds (v0.5.0-oss, days) — pre-EE build
+
+Goal: **deepen the moat before the enterprise tier** — the enforcement,
+binding, and attestation primitives that make the demo tell the whole thesis.
+All OSS; derived from the deep-problem analysis (internal). No IdP, no control
+plane, no design-partner dependencies.
+
+a. **Risk-tier policy engine (Check Mode OSS seed)** — planned
+   Declarative YAML evaluated at exec time: payload-conditional decisions
+   (`amount <= 10000 → low_risk`, `> 10000 → step-up`, blacklisted → deny).
+   Local tier of item 10; EE adds control plane + per-tenant policy.
+   *Gate:* same agent, same tool — $500 executes attested, $4.2M hits a wall,
+   blacklisted beneficiary denied with attested denial.
+
+b. **TOCTOU pre-flight digest verification** — planned
+   The exact outgoing payload is digested at rail entry and checked against the
+   approved bound context; a payload mutated between approval and execution is
+   blocked (fail-closed), denial attested. Canonical-JSON digest (key-order
+   safe). *Gate:* mutate-after-approval demo → blocked at the rail.
+
+c. **Replay-attack surface + proof-of-display** — planned
+   Approval bound to one context is rejected against any other (`BIND_MISMATCH`,
+   shipped) — surfaced as a demo beat; `secondsign approve` renders the bound
+   payload so the human approves what they *see*, hash-verified.
+   *Gate:* swap-payload replay demo → blocked; approval card shows payload + hash.
+
+d. **Hash-chained receipts + independent verifier** — planned
+   Append-only JSONL receipts: each record chains the previous hash and carries
+   prompt digest, policy snapshot, human assertion signature. Standalone
+   verifier script detects any tampering. Local tier of item 16.
+   *Gate:* auditor edits the log → chain breaks → verifier catches it.
+
+e. **`secondsign wrap` — universal MCP tool boundary** — planned
+   Spawn any third-party MCP server as a child; the harness sits between host
+   and server, applying policy + step-up to its tool calls. SecondSign becomes
+   the enforcement point for tools it doesn't own. *Gate:* wrapped demo
+   third-party server — destructive tool call hits the wall, reads pass, all
+   attested.
+
 ## Phase 2 — Enterprise identity spine (v0.5 – v0.6, months)
 
 7. **IdP step-up bridge (Okta / Entra / Ping)** — EE
@@ -110,7 +149,8 @@ survives. All OSS unless marked.
 
 ## Sequencing logic
 
-- **Phase 1 exists to win demos** (factor completeness = no agent ever stranded).
+- **Phase 1 existed to win demos** (factor completeness = no agent ever stranded) — shipped v0.4.0.
+- **Phase 1.5 exists to deepen the moat before funding** (policy, binding, receipts — the deep-problem seeds demoed end-to-end).
 - **Phase 2 exists to win design partners** (IdP + policy + Slack = the SOW success metrics).
 - **Phase 3 exists to win the round** (platform, sovereign, anchoring).
 - Quality gates throughout from `docs/business/VALIDATION-MATRIX.md`: chaos suite,
@@ -121,5 +161,6 @@ survives. All OSS unless marked.
 | Roadmap phase | PoT deck slide |
 |---|---|
 | Phase 1 | Demo slide ("any wall, any factor") |
+| Phase 1.5 | Demo slide ("policy reads the payload") + Product slide (boundary, receipts) |
 | Phase 2 | Product slide + Ecosystem slide (04b) |
 | Phase 3 | Road-to-digital-assets + sovereign slides |
