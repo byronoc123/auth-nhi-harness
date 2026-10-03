@@ -1,5 +1,9 @@
 # SecondSign
 
+[![CI](https://github.com/byronoc123/auth-nhi-harness/actions/workflows/ci.yml/badge.svg)](https://github.com/byronoc123/auth-nhi-harness/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/%40secondsign/mcp-harness.svg)](https://www.npmjs.com/package/@secondsign/mcp-harness)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
+
 **Step-up auth & governance for agentic processes.**
 
 Every agent action, human-signed.
@@ -144,8 +148,13 @@ OS keychain / HashiCorp Vault / AWS KMS with rotation.
 - v0.2 — Agent Lock context binding, ephemeral single-use grants, step-down scoping, attestation hash
 - v0.3 — Browser + HTTP executors, real-wall money demo, assertion headers
 - v0.4 — Push auto wall-clear, headful passkey/FIDO2 handoff, unified wall state machine (config-only factors), magic-link routing, captcha hard-HITL boundary, session persistence with TTL
+- v0.5 — `secondsign wrap` universal MCP boundary, YAML risk-tier policy engine, hash-chained receipts + verifier, swarm batch approval, Chrome MV3 launcher
 
 See [CHANGELOG.md](./CHANGELOG.md) for release details.
+
+## Links
+
+[secondsign.app](https://secondsign.app) · [Changelog](./CHANGELOG.md) · [Issues](https://github.com/byronoc123/auth-nhi-harness/issues) · [Sponsor](https://github.com/sponsors/byronoc123)
 
 ## License
 

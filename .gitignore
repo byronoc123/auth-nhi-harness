@@ -7,5 +7,10 @@ coverage/
 .auth-nhi/
 *.vault.enc
 tickets.json
-.DS_Store.vercel/
+.DS_Store
+.vercel/
 demo/recordings/
+extension/dist/
+extension/store/
+.vercel
+.env*
